@@ -1,0 +1,16 @@
+{% extends "clubs/base.html" %}
+{% block content %}
+<div class="row text-center mb-4">
+  <div class="col"><div class="card"><div class="card-body"><h3>{{ n_members }}</h3>Thành viên</div></div></div>
+  <div class="col"><div class="card"><div class="card-body"><h3>{{ n_events }}</h3>Sự kiện</div></div></div>
+  <div class="col"><div class="card"><div class="card-body"><h3>{{ n_attended }}</h3>Lần bạn điểm danh</div></div></div>
+</div>
+<div class="row">
+  <div class="col-md-6"><div class="card mb-3"><div class="card-header">Sự kiện sắp tới</div><ul class="list-group list-group-flush">
+    {% for e in upcoming %}<li class="list-group-item"><a href="{% url 'event_detail' e.pk %}">{{ e.title }}</a> <small class="text-muted">{{ e.start_time|date:"H:i d/m/Y" }}</small></li>
+    {% empty %}<li class="list-group-item text-muted">Chưa có sự kiện.</li>{% endfor %}</ul></div></div>
+  <div class="col-md-6"><div class="card mb-3"><div class="card-header">Task của tôi</div><ul class="list-group list-group-flush">
+    {% for t in my_tasks %}<li class="list-group-item">{{ t.title }} <span class="badge bg-secondary">{{ t.get_status_display }}</span></li>
+    {% empty %}<li class="list-group-item text-muted">Không có task.</li>{% endfor %}</ul></div></div>
+</div>
+{% endblock %}

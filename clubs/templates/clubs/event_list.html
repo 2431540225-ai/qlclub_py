@@ -1,0 +1,10 @@
+{% extends "clubs/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3"><h3>Sự kiện</h3>
+  {% if user.profile.is_officer %}<a class="btn btn-primary" href="{% url 'event_create' %}">+ Tạo sự kiện</a>{% endif %}</div>
+<div class="list-group">
+  {% for e in events %}<a class="list-group-item list-group-action" href="{% url 'event_detail' e.pk %}">
+    <b>{{ e.title }}</b> · {{ e.start_time|date:"H:i d/m/Y" }} · {{ e.location }}</a>
+  {% empty %}<div class="text-muted">Chưa có sự kiện.</div>{% endfor %}
+</div>
+{% endblock %}

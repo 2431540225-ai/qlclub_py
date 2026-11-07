@@ -1,0 +1,7 @@
+Django>=5.0,<5.3
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary
+qrcode[pil]
+anthropic

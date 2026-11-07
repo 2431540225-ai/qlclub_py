@@ -1,0 +1,10 @@
+{% extends "clubs/base.html" %}
+{% block content %}
+<h3>✨ AI tóm tắt biên bản & đề xuất task</h3>
+<form method="post">{% csrf_token %}
+  <div class="mb-3">{{ form.text.label_tag }}{{ form.text }}</div>
+  <button class="btn btn-primary">Tóm tắt</button>
+</form>
+{% if result %}<div class="card mt-4"><div class="card-header">Kết quả</div>
+  <div class="card-body" style="white-space:pre-wrap">{{ result }}</div></div>{% endif %}
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "clubs/base.html" %}
+{% block content %}
+<h3>Thành viên</h3>
+<table class="table table-striped bg-white"><thead><tr><th>Tài khoản</th><th>Họ tên</th><th>MSSV</th><th>Vai trò</th></tr></thead><tbody>
+{% for u in users %}<tr><td>{{ u.username }}</td><td>{{ u.get_full_name }}</td><td>{{ u.profile.student_id }}</td><td>
+  {% if user.profile.role == "admin" %}
+  <form method="post" action="{% url 'change_role' u.pk %}" class="d-flex gap-2">{% csrf_token %}
+    <select name="role" class="form-select form-select-sm">
+      <option value="member" {% if u.profile.role == "member" %}selected{% endif %}>Thành viên</option>
+      <option value="officer" {% if u.profile.role == "officer" %}selected{% endif %}>Ban điều hành</option>
+      <option value="admin" {% if u.profile.role == "admin" %}selected{% endif %}>Admin</option>
+    </select><button class="btn btn-sm btn-primary">Lưu</button></form>
+  {% else %}{{ u.profile.get_role_display }}{% endif %}</td></tr>{% endfor %}
+</tbody></table>
+{% endblock %}
