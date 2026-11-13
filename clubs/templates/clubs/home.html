@@ -1,16 +1,474 @@
 {% extends "clubs/base.html" %}
+
+{% block extra_css %}
+<style>
+  /* ── Header Welcome ──────────────────────────────────────────────────────── */
+  .vaa-hero-welcome {
+    background: #FFFFFF;
+    border: 1px solid var(--vaa-border);
+    border-radius: var(--vaa-radius);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--vaa-shadow-sm);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vaa-hero-welcome::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, var(--vaa-gold-glow) 0%, var(--vaa-blue) 100%);
+  }
+
+  .vaa-hero-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--vaa-navy);
+    margin: 0 0 0.3rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vaa-hero-subtitle {
+    font-size: 0.92rem;
+    color: var(--vaa-text-sub);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .vaa-hero-subtitle i {
+    color: var(--vaa-gold);
+  }
+
+  /* ── Quick Action Buttons ─────────────────────────────────────────────────── */
+  .vaa-btn-primary {
+    background: linear-gradient(135deg, var(--vaa-navy) 0%, #004b99 100%);
+    color: #FFFFFF !important;
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    box-shadow: 0 3px 12px rgba(10, 37, 64, 0.2);
+    transition: all 0.25s ease;
+    text-decoration: none;
+  }
+
+  .vaa-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(10, 37, 64, 0.3);
+    background: linear-gradient(135deg, #06182a 0%, #003875 100%);
+  }
+
+  .vaa-btn-gold {
+    background: linear-gradient(135deg, var(--vaa-gold-glow) 0%, var(--vaa-gold) 100%);
+    color: #0A2540 !important;
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.25rem;
+    font-weight: 700;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    box-shadow: 0 3px 12px rgba(217, 119, 6, 0.25);
+    transition: all 0.25s ease;
+    text-decoration: none;
+  }
+
+  .vaa-btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(217, 119, 6, 0.35);
+  }
+
+  .vaa-btn-outline {
+    background: #FFFFFF;
+    color: var(--vaa-navy) !important;
+    border: 1.5px solid var(--vaa-border);
+    border-radius: 10px;
+    padding: 0.55rem 1.2rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    transition: all 0.25s ease;
+    text-decoration: none;
+  }
+
+  .vaa-btn-outline:hover {
+    border-color: var(--vaa-navy);
+    background: #F8FAFC;
+    transform: translateY(-1px);
+  }
+
+  /* ── Stat Cards (Thống kê - Độ tương phản cao, dịu mắt) ──────────────────── */
+  .vaa-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .vaa-stat-card {
+    background: var(--vaa-card-bg);
+    border: 1px solid var(--vaa-border);
+    border-radius: var(--vaa-radius);
+    padding: 1.4rem 1.5rem;
+    box-shadow: var(--vaa-shadow-sm);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .vaa-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--vaa-shadow-md);
+    border-color: #CBD5E1;
+  }
+
+  .vaa-stat-card-accent-1 { border-top: 3.5px solid var(--vaa-blue); }
+  .vaa-stat-card-accent-2 { border-top: 3.5px solid var(--vaa-gold); }
+  .vaa-stat-card-accent-3 { border-top: 3.5px solid #10B981; }
+
+  .vaa-stat-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vaa-stat-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--vaa-text-sub);
+    margin-bottom: 0.35rem;
+  }
+
+  .vaa-stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--vaa-navy); /* Số xanh navy đậm, cực kỳ rõ nét */
+    line-height: 1;
+    letter-spacing: -0.5px;
+  }
+
+  .vaa-stat-icon-wrap {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .stat-icon-blue {
+    background: #EBF4FC;
+    color: var(--vaa-blue);
+  }
+
+  .stat-icon-gold {
+    background: #FEF3C7;
+    color: var(--vaa-gold);
+  }
+
+  .stat-icon-green {
+    background: #D1FAE5;
+    color: #059669;
+  }
+
+  /* ── Dashboard Cards (Sự kiện & Task) ────────────────────────────────────── */
+  .vaa-card {
+    background: var(--vaa-card-bg);
+    border: 1px solid var(--vaa-border);
+    border-radius: var(--vaa-radius);
+    box-shadow: var(--vaa-shadow-sm);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vaa-card-header {
+    padding: 1.1rem 1.4rem;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--vaa-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .vaa-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--vaa-navy);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vaa-card-title i {
+    color: var(--vaa-gold);
+    font-size: 1.15rem;
+  }
+
+  .vaa-list-group {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .vaa-list-item {
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .vaa-list-item:last-child {
+    border-bottom: none;
+  }
+
+  .vaa-list-item:hover {
+    background-color: #F8FAFC;
+  }
+
+  .vaa-event-link {
+    color: var(--vaa-navy);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: block;
+  }
+
+  .vaa-event-link:hover {
+    color: var(--vaa-blue);
+  }
+
+  .vaa-item-meta {
+    font-size: 0.82rem;
+    color: var(--vaa-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.2rem;
+  }
+
+  /* Badge status */
+  .vaa-badge {
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .badge-todo {
+    background: #FFF1F2;
+    color: #BE123C;
+    border: 1px solid #FFE4E6;
+  }
+
+  .badge-doing {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border: 1px solid #DBEAFE;
+  }
+
+  .badge-done {
+    background: #ECFDF5;
+    color: #047857;
+    border: 1px solid #D1FAE5;
+  }
+
+  .vaa-empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--vaa-text-muted);
+  }
+
+  .vaa-empty-icon {
+    font-size: 2.5rem;
+    color: #CBD5E1;
+    margin-bottom: 0.6rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row text-center mb-4">
-  <div class="col"><div class="card"><div class="card-body"><h3>{{ n_members }}</h3>Thành viên</div></div></div>
-  <div class="col"><div class="card"><div class="card-body"><h3>{{ n_events }}</h3>Sự kiện</div></div></div>
-  <div class="col"><div class="card"><div class="card-body"><h3>{{ n_attended }}</h3>Lần bạn điểm danh</div></div></div>
+<!-- Welcome Hero -->
+<div class="vaa-hero-welcome">
+  <div>
+    <h1 class="vaa-hero-title">
+      Xin chào, {{ user.first_name|default:user.username }}!
+      <span class="fs-5">✈️</span>
+    </h1>
+    <p class="vaa-hero-subtitle">
+      <i class="bi bi-airplane-fill"></i>
+      Cổng thông tin & điều hành Câu lạc bộ Sinh viên Hàng Không (VAA)
+    </p>
+  </div>
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    {% if user.profile.is_officer %}
+    <a href="{% url 'event_create' %}" class="vaa-btn-primary">
+      <i class="bi bi-calendar-plus"></i> Tạo sự kiện
+    </a>
+    <a href="{% url 'task_create' %}" class="vaa-btn-outline">
+      <i class="bi bi-plus-circle"></i> Giao task
+    </a>
+    {% endif %}
+  </div>
 </div>
-<div class="row">
-  <div class="col-md-6"><div class="card mb-3"><div class="card-header">Sự kiện sắp tới</div><ul class="list-group list-group-flush">
-    {% for e in upcoming %}<li class="list-group-item"><a href="{% url 'event_detail' e.pk %}">{{ e.title }}</a> <small class="text-muted">{{ e.start_time|date:"H:i d/m/Y" }}</small></li>
-    {% empty %}<li class="list-group-item text-muted">Chưa có sự kiện.</li>{% endfor %}</ul></div></div>
-  <div class="col-md-6"><div class="card mb-3"><div class="card-header">Task của tôi</div><ul class="list-group list-group-flush">
-    {% for t in my_tasks %}<li class="list-group-item">{{ t.title }} <span class="badge bg-secondary">{{ t.get_status_display }}</span></li>
-    {% empty %}<li class="list-group-item text-muted">Không có task.</li>{% endfor %}</ul></div></div>
+
+<!-- Stat Cards: Rõ ràng, dịu mắt, tương phản cao -->
+<div class="vaa-stat-grid">
+  <!-- Thẻ Thành viên -->
+  <div class="vaa-stat-card vaa-stat-card-accent-1">
+    <div class="vaa-stat-info">
+      <span class="vaa-stat-label">Tổng thành viên</span>
+      <span class="vaa-stat-number">{{ n_members }}</span>
+    </div>
+    <div class="vaa-stat-icon-wrap stat-icon-blue">
+      <i class="bi bi-people-fill"></i>
+    </div>
+  </div>
+
+  <!-- Thẻ Sự kiện -->
+  <div class="vaa-stat-card vaa-stat-card-accent-2">
+    <div class="vaa-stat-info">
+      <span class="vaa-stat-label">Sự kiện hoạt động</span>
+      <span class="vaa-stat-number">{{ n_events }}</span>
+    </div>
+    <div class="vaa-stat-icon-wrap stat-icon-gold">
+      <i class="bi bi-calendar2-check-fill"></i>
+    </div>
+  </div>
+
+  <!-- Thẻ Điểm danh của bạn -->
+  <div class="vaa-stat-card vaa-stat-card-accent-3">
+    <div class="vaa-stat-info">
+      <span class="vaa-stat-label">Lần bạn tham gia</span>
+      <span class="vaa-stat-number">{{ n_attended }}</span>
+    </div>
+    <div class="vaa-stat-icon-wrap stat-icon-green">
+      <i class="bi bi-award-fill"></i>
+    </div>
+  </div>
+</div>
+
+<!-- 2 Cột: Sự kiện sắp tới & Task của tôi -->
+<div class="row g-4">
+  <!-- Cột Sự kiện sắp tới -->
+  <div class="col-lg-6">
+    <div class="vaa-card">
+      <div class="vaa-card-header">
+        <h2 class="vaa-card-title">
+          <i class="bi bi-calendar-event-fill"></i>
+          Sự kiện sắp diễn ra
+        </h2>
+        <a href="{% url 'events' %}" class="btn btn-sm btn-link text-decoration-none fw-semibold" style="color: var(--vaa-blue);">
+          Xem tất cả <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <ul class="vaa-list-group">
+        {% for e in upcoming %}
+        <li class="vaa-list-item">
+          <div>
+            <a href="{% url 'event_detail' e.pk %}" class="vaa-event-link">
+              {{ e.title }}
+            </a>
+            <div class="vaa-item-meta">
+              <i class="bi bi-clock"></i> {{ e.start_time|date:"H:i - d/m/Y" }}
+              {% if e.location %}
+              <span class="mx-1">·</span>
+              <i class="bi bi-geo-alt"></i> {{ e.location }}
+              {% endif %}
+            </div>
+          </div>
+          <a href="{% url 'event_detail' e.pk %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            Chi tiết
+          </a>
+        </li>
+        {% empty %}
+        <li class="vaa-empty-state">
+          <div class="vaa-empty-icon"><i class="bi bi-calendar-x"></i></div>
+          <p class="mb-0">Chưa có sự kiện nào sắp diễn ra.</p>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Cột Task của tôi -->
+  <div class="col-lg-6">
+    <div class="vaa-card">
+      <div class="vaa-card-header">
+        <h2 class="vaa-card-title">
+          <i class="bi bi-clipboard-check-fill"></i>
+          Task của tôi
+        </h2>
+        <a href="{% url 'tasks' %}" class="btn btn-sm btn-link text-decoration-none fw-semibold" style="color: var(--vaa-blue);">
+          Xem tất cả <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <ul class="vaa-list-group">
+        {% for t in my_tasks %}
+        <li class="vaa-list-item">
+          <div>
+            <span class="fw-semibold text-dark">{{ t.title }}</span>
+            <div class="vaa-item-meta">
+              {% if t.due_date %}
+              <i class="bi bi-alarm"></i> Hạn: {{ t.due_date|date:"d/m/Y" }}
+              {% else %}
+              <i class="bi bi-info-circle"></i> Chưa đặt hạn
+              {% endif %}
+            </div>
+          </div>
+          <div>
+            {% if t.status == "todo" %}
+              <span class="vaa-badge badge-todo">Cần làm</span>
+            {% elif t.status == "doing" %}
+              <span class="vaa-badge badge-doing">Đang làm</span>
+            {% else %}
+              <span class="vaa-badge badge-done">Hoàn thành</span>
+            {% endif %}
+          </div>
+        </li>
+        {% empty %}
+        <li class="vaa-empty-state">
+          <div class="vaa-empty-icon"><i class="bi bi-check2-circle"></i></div>
+          <p class="mb-0">Bạn hiện không có task nào đang chờ.</p>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
 {% endblock %}

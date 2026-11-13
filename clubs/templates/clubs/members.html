@@ -1,15 +1,141 @@
 {% extends "clubs/base.html" %}
+
+{% block extra_css %}
+<style>
+  .vaa-member-card {
+    background: #FFFFFF;
+    border: 1px solid var(--vaa-border);
+    border-radius: var(--vaa-radius);
+    box-shadow: var(--vaa-shadow-sm);
+    overflow: hidden;
+  }
+
+  .vaa-table {
+    margin-bottom: 0;
+  }
+
+  .vaa-table thead th {
+    background: #F8FAFC;
+    color: var(--vaa-navy);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1rem 1.25rem;
+    border-bottom: 1.5px solid var(--vaa-border);
+  }
+
+  .vaa-table tbody td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+    font-size: 0.92rem;
+    border-bottom: 1px solid #F1F5F9;
+  }
+
+  .vaa-table tbody tr:hover {
+    background-color: #F8FAFC;
+  }
+
+  .role-badge-admin {
+    background: #FFF1F2;
+    color: #BE123C;
+    border: 1px solid #FFE4E6;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+
+  .role-badge-officer {
+    background: #FEF3C7;
+    color: #B45309;
+    border: 1px solid #FDE68A;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+
+  .role-badge-member {
+    background: #EBF4FC;
+    color: #0369A1;
+    border: 1px solid #BAE6FD;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.78rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<h3>Thành viên</h3>
-<table class="table table-striped bg-white"><thead><tr><th>Tài khoản</th><th>Họ tên</th><th>MSSV</th><th>Vai trò</th></tr></thead><tbody>
-{% for u in users %}<tr><td>{{ u.username }}</td><td>{{ u.get_full_name }}</td><td>{{ u.profile.student_id }}</td><td>
-  {% if user.profile.role == "admin" %}
-  <form method="post" action="{% url 'change_role' u.pk %}" class="d-flex gap-2">{% csrf_token %}
-    <select name="role" class="form-select form-select-sm">
-      <option value="member" {% if u.profile.role == "member" %}selected{% endif %}>Thành viên</option>
-      <option value="officer" {% if u.profile.role == "officer" %}selected{% endif %}>Ban điều hành</option>
-      <option value="admin" {% if u.profile.role == "admin" %}selected{% endif %}>Admin</option>
-    </select><button class="btn btn-sm btn-primary">Lưu</button></form>
-  {% else %}{{ u.profile.get_role_display }}{% endif %}</td></tr>{% endfor %}
-</tbody></table>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+  <div>
+    <h1 class="h3 fw-bold text-dark mb-1">
+      <i class="bi bi-people-fill text-primary"></i> Quản Lý Thành Viên CLB
+    </h1>
+    <p class="text-muted small mb-0">Hồ sơ sinh viên và phân quyền ban điều hành VAA</p>
+  </div>
+  <span class="badge bg-white text-dark border px-3 py-2 rounded-pill shadow-sm">
+    Tổng: <strong>{{ users.count }}</strong> thành viên
+  </span>
+</div>
+
+<div class="vaa-member-card">
+  <div class="table-responsive">
+    <table class="table vaa-table">
+      <thead>
+        <tr>
+          <th>Tài khoản</th>
+          <th>Họ và tên</th>
+          <th>Mã số SV (MSSV)</th>
+          <th>Vai trò / Phân quyền</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-person-circle fs-5 text-secondary"></i>
+              <span class="fw-semibold text-dark">{{ u.username }}</span>
+            </div>
+          </td>
+          <td>{{ u.get_full_name|default:"—" }}</td>
+          <td>
+            {% if u.profile.student_id %}
+              <span class="badge bg-light text-dark border font-monospace">{{ u.profile.student_id }}</span>
+            {% else %}
+              <span class="text-muted small">Chưa cập nhật</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if user.profile.role == "admin" %}
+            <form method="post" action="{% url 'change_role' u.pk %}" class="d-flex align-items-center gap-2">
+              {% csrf_token %}
+              <select name="role" class="form-select form-select-sm" style="max-width: 150px; border-radius: 8px;">
+                <option value="member" {% if u.profile.role == "member" %}selected{% endif %}>Thành viên</option>
+                <option value="officer" {% if u.profile.role == "officer" %}selected{% endif %}>Ban điều hành</option>
+                <option value="admin" {% if u.profile.role == "admin" %}selected{% endif %}>Admin CLB</option>
+              </select>
+              <button class="btn btn-sm btn-primary" style="background: var(--vaa-navy); border: none; border-radius: 8px;">
+                Lưu
+              </button>
+            </form>
+            {% else %}
+              {% if u.profile.role == "admin" %}
+                <span class="role-badge-admin"><i class="bi bi-shield-lock-fill"></i> Admin</span>
+              {% elif u.profile.role == "officer" %}
+                <span class="role-badge-officer"><i class="bi bi-star-fill"></i> Ban điều hành</span>
+              {% else %}
+                <span class="role-badge-member"><i class="bi bi-person-fill"></i> Thành viên</span>
+              {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

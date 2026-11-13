@@ -1,31 +1,364 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ClubHub - Quản lý CLB</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VAA ClubHub - Quản lý CLB Sinh viên Hàng Không</title>
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    /* ── Design Tokens: Học viện Hàng không Việt Nam (VAA) ────────────────── */
+    :root {
+      /* Aviation Palette */
+      --vaa-navy:       #0A2540;       /* Xanh Hàng Không đậm uy tín */
+      --vaa-navy-dark:  #06182A;       /* Xanh đậm sâu cho footer/navbar */
+      --vaa-blue:       #0056B3;       /* Xanh dương VAA tiêu chuẩn */
+      --vaa-blue-light: #EBF4FC;       /* Nền xanh nhạt dịu mát */
+      --vaa-gold:       #D97706;       /* Vàng cánh chim/máy bay đậm, tương phản chuẩn */
+      --vaa-gold-glow:  #F59E0B;       /* Vàng tươi ánh kim sáng */
+      --vaa-gold-light: #FEF3C7;       /* Nền badge vàng dịu mắt */
+      --vaa-accent:     #E11D48;       /* Điểm nhấn hồng đậm/đỏ cam */
+      
+      /* Neutral Palette - Không chói lóa, không tối tăm */
+      --vaa-bg:         #F3F6FA;       /* Nền tổng thể: xám xanh êm dịu, chống mỏi mắt */
+      --vaa-card-bg:    #FFFFFF;       /* Nền card trắng sạch */
+      --vaa-text-main:  #0F172A;       /* Chữ chính đậm đà, tương phản cao, dễ đọc */
+      --vaa-text-sub:   #475569;       /* Chữ phụ xám xanh trung tính */
+      --vaa-text-muted: #64748B;       /* Chữ mờ hỗ trợ */
+      --vaa-border:     #E2E8F0;       /* Viền thẻ mềm mại */
+      --vaa-border-hover:#CBD5E1;
+      
+      /* Shadow mềm mại, hiện đại */
+      --vaa-shadow-sm:  0 2px 8px rgba(10, 37, 64, 0.04);
+      --vaa-shadow-md:  0 6px 20px -3px rgba(10, 37, 64, 0.07);
+      --vaa-shadow-lg:  0 12px 30px -4px rgba(10, 37, 64, 0.12);
+      
+      --vaa-radius:     14px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--vaa-bg);
+      color: var(--vaa-text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Navbar Sang Trọng Chuẩn Hàng Không ────────────────────────────────── */
+    .vaa-navbar {
+      background: linear-gradient(135deg, var(--vaa-navy-dark) 0%, var(--vaa-navy) 60%, #0c345c 100%);
+      border-bottom: 2.5px solid var(--vaa-gold-glow);
+      padding: 0.65rem 0;
+      box-shadow: 0 4px 20px rgba(6, 24, 42, 0.25);
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+
+    .vaa-navbar .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #FFFFFF !important;
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: -0.3px;
+      padding: 0;
+    }
+
+    .vaa-logo-box {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #0A2540;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
+      transition: transform 0.3s ease;
+    }
+
+    .vaa-navbar .navbar-brand:hover .vaa-logo-box {
+      transform: rotate(-8deg) scale(1.05);
+    }
+
+    .vaa-brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .vaa-brand-title {
+      color: #FFFFFF;
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .vaa-brand-title span {
+      color: var(--vaa-gold-glow);
+    }
+
+    .vaa-brand-sub {
+      font-size: 0.68rem;
+      color: rgba(255, 255, 255, 0.75);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+    }
+
+    /* Nav Links */
+    .vaa-navbar .nav-link {
+      color: rgba(255, 255, 255, 0.85) !important;
+      font-weight: 600;
+      font-size: 0.88rem;
+      padding: 0.55rem 0.95rem !important;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .vaa-navbar .nav-link i {
+      color: var(--vaa-gold-glow);
+      font-size: 1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .vaa-navbar .nav-link:hover {
+      color: #FFFFFF !important;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .vaa-navbar .nav-link:hover i {
+      transform: translateY(-2px);
+    }
+
+    /* User Badge */
+    .vaa-user-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 0.4rem 0.85rem;
+      border-radius: 50px;
+      color: #FFFFFF;
+      font-size: 0.84rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .vaa-user-pill .badge-role {
+      background: linear-gradient(135deg, var(--vaa-gold-glow) 0%, var(--vaa-gold) 100%);
+      color: #0A2540;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      letter-spacing: 0.3px;
+    }
+
+    .vaa-btn-logout {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #FFFFFF;
+      padding: 0.38rem 0.85rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .vaa-btn-logout:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: #FFFFFF;
+      color: #FFFFFF;
+    }
+
+    /* ── Main Container ────────────────────────────────────────────────────── */
+    .vaa-main {
+      flex: 1;
+      padding-top: 1.8rem;
+      padding-bottom: 3.5rem;
+    }
+
+    /* Alerts */
+    .vaa-alert {
+      border: none;
+      border-left: 4px solid var(--vaa-blue);
+      border-radius: 10px;
+      background: #FFFFFF;
+      box-shadow: var(--vaa-shadow-sm);
+      color: var(--vaa-text-main);
+      font-weight: 500;
+      padding: 0.9rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .vaa-alert.alert-success {
+      border-left-color: #10B981;
+      background: #ECFDF5;
+      color: #065F46;
+    }
+
+    .vaa-alert.alert-warning {
+      border-left-color: var(--vaa-gold);
+      background: #FFFBEB;
+      color: #92400E;
+    }
+
+    .vaa-alert.alert-danger {
+      border-left-color: var(--vaa-accent);
+      background: #FFF1F2;
+      color: #9F1239;
+    }
+
+    /* ── Footer Sang Trọng ─────────────────────────────────────────────────── */
+    .vaa-footer {
+      background: #FFFFFF;
+      border-top: 1px solid var(--vaa-border);
+      padding: 1.5rem 0;
+      margin-top: auto;
+      font-size: 0.86rem;
+      color: var(--vaa-text-sub);
+    }
+
+    .vaa-footer a {
+      color: var(--vaa-blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .vaa-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .airplane-fly {
+      display: inline-block;
+      color: var(--vaa-gold);
+      transform: rotate(-15deg);
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-expand-md navbar-dark bg-primary mb-4">
-  <div class="container">
-    <a class="navbar-brand" href="{% url 'home' %}">ClubHub</a>
-    {% if user.is_authenticated %}
-    <div class="navbar-nav me-auto">
-      <a class="nav-link" href="{% url 'events' %}">Sự kiện</a>
-      <a class="nav-link" href="{% url 'tasks' %}">Task</a>
-      {% if user.profile.is_officer %}
-      <a class="nav-link" href="{% url 'members' %}">Thành viên</a>
-      <a class="nav-link" href="{% url 'minutes' %}">AI biên bản</a>
+<body>
+
+  <!-- Header / Navigation Bar -->
+  <nav class="navbar navbar-expand-lg vaa-navbar">
+    <div class="container" style="max-width: 1200px;">
+      <a class="navbar-brand" href="{% url 'home' %}">
+        <div class="vaa-logo-box">
+          <i class="bi bi-airplane-fill"></i>
+        </div>
+        <div class="vaa-brand-text">
+          <span class="vaa-brand-title">VAA <span>ClubHub</span></span>
+          <span class="vaa-brand-sub">Học viện Hàng không Việt Nam</span>
+        </div>
+      </a>
+
+      {% if user.is_authenticated %}
+      <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#vaaNavContent">
+        <i class="bi bi-list fs-3"></i>
+      </button>
+
+      <div class="collapse navbar-collapse" id="vaaNavContent">
+        <div class="navbar-nav ms-lg-4 me-auto gap-1">
+          <a class="nav-link" href="{% url 'home' %}">
+            <i class="bi bi-speedometer2"></i> Tổng quan
+          </a>
+          <a class="nav-link" href="{% url 'events' %}">
+            <i class="bi bi-calendar-event"></i> Sự kiện
+          </a>
+          <a class="nav-link" href="{% url 'tasks' %}">
+            <i class="bi bi-check2-square"></i> Task CLB
+          </a>
+          {% if user.profile.is_officer %}
+          <a class="nav-link" href="{% url 'members' %}">
+            <i class="bi bi-people"></i> Thành viên
+          </a>
+          <a class="nav-link" href="{% url 'minutes' %}">
+            <i class="bi bi-robot"></i> AI Biên Bản
+          </a>
+          {% endif %}
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+          <div class="vaa-user-pill">
+            <i class="bi bi-person-circle text-warning"></i>
+            <span>{{ user.first_name|default:user.username }}</span>
+            <span class="badge-role">{{ user.profile.get_role_display }}</span>
+          </div>
+          <form method="post" action="{% url 'logout' %}" class="d-inline m-0">
+            {% csrf_token %}
+            <button class="vaa-btn-logout" type="submit">
+              <i class="bi bi-box-arrow-right"></i> Đăng xuất
+            </button>
+          </form>
+        </div>
+      </div>
       {% endif %}
     </div>
-    <span class="navbar-text me-3">{{ user.username }} · {{ user.profile.get_role_display }}</span>
-    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm btn-light">Đăng xuất</button></form>
-    {% endif %}
-  </div>
-</nav>
-<div class="container pb-5">
-  {% for m in messages %}<div class="alert alert-{{ m.tags|default:'info' }}">{{ m }}</div>{% endfor %}
-  {% block content %}{% endblock %}
-</div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="vaa-main">
+    <div class="container" style="max-width: 1200px;">
+      {% if messages %}
+        {% for m in messages %}
+          <div class="vaa-alert alert-{{ m.tags|default:'info' }}">
+            <i class="bi bi-info-circle-fill fs-5"></i>
+            <div>{{ m }}</div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="vaa-footer">
+    <div class="container text-center" style="max-width: 1200px;">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <div>
+          <span class="fw-bold text-dark"><i class="bi bi-airplane-fill airplane-fly"></i> VAA ClubHub</span> · Hệ thống Quản trị Hoạt động Câu lạc bộ Sinh viên
+        </div>
+        <div class="text-muted small">
+          © 2024 Học viện Hàng không Việt Nam (Vietnam Aviation Academy)
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

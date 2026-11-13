@@ -1,14 +1,123 @@
 {% extends "clubs/base.html" %}
+
+{% block extra_css %}
+<style>
+  .vaa-task-card {
+    background: #FFFFFF;
+    border: 1px solid var(--vaa-border);
+    border-radius: var(--vaa-radius);
+    box-shadow: var(--vaa-shadow-sm);
+    overflow: hidden;
+  }
+
+  .vaa-table thead th {
+    background: #F8FAFC;
+    color: var(--vaa-navy);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1rem 1.25rem;
+    border-bottom: 1.5px solid var(--vaa-border);
+  }
+
+  .vaa-table tbody td {
+    padding: 1rem 1.25rem;
+    vertical-align: middle;
+    font-size: 0.92rem;
+    border-bottom: 1px solid #F1F5F9;
+  }
+
+  .vaa-table tbody tr:hover {
+    background-color: #F8FAFC;
+  }
+
+  .select-status {
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 0.35rem 0.65rem;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between mb-3"><h3>Task</h3>
-  {% if user.profile.is_officer %}<a class="btn btn-primary" href="{% url 'task_create' %}">+ Giao task</a>{% endif %}</div>
-<table class="table bg-white"><thead><tr><th>Task</th><th>Người nhận</th><th>Hạn</th><th>Trạng thái</th></tr></thead><tbody>
-{% for t in tasks %}<tr><td><b>{{ t.title }}</b><br><small class="text-muted">{{ t.description }}</small></td>
-  <td>{{ t.assignee.username }}</td><td>{{ t.due_date|date:"d/m/Y" }}</td><td>
-  <form method="post" action="{% url 'task_status' t.pk %}" class="d-flex gap-2">{% csrf_token %}
-    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-      {% for v, l in statuses %}<option value="{{ v }}" {% if t.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}
-    </select></form></td></tr>
-{% empty %}<tr><td colspan="4" class="text-muted">Không có task.</td></tr>{% endfor %}
-</tbody></table>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+  <div>
+    <h1 class="h3 fw-bold text-dark mb-1">
+      <i class="bi bi-kanban-fill text-primary"></i> Quản Lý Công Việc & Nhiệm Vụ
+    </h1>
+    <p class="text-muted small mb-0">Theo dõi tiến độ phân công nhiệm vụ trong câu lạc bộ</p>
+  </div>
+  {% if user.profile.is_officer %}
+  <a href="{% url 'task_create' %}" class="btn btn-primary" style="background: var(--vaa-navy); border-color: var(--vaa-navy); border-radius: 10px; font-weight: 600;">
+    <i class="bi bi-plus-circle"></i> + Giao task mới
+  </a>
+  {% endif %}
+</div>
+
+<div class="vaa-task-card">
+  <div class="table-responsive">
+    <table class="table vaa-table mb-0">
+      <thead>
+        <tr>
+          <th style="min-width: 250px;">Công việc / Nhiệm vụ</th>
+          <th>Người phụ trách</th>
+          <th>Thời hạn (Deadline)</th>
+          <th style="min-width: 170px;">Tiến độ thực hiện</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tasks %}
+        <tr>
+          <td>
+            <div class="fw-bold text-dark">{{ t.title }}</div>
+            {% if t.description %}
+            <div class="text-muted small mt-1">{{ t.description|truncatewords:15 }}</div>
+            {% endif %}
+            {% if t.event %}
+            <span class="badge bg-light text-primary border mt-1">
+              <i class="bi bi-calendar-event"></i> {{ t.event.title }}
+            </span>
+            {% endif %}
+          </td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi bi-person-badge text-secondary"></i>
+              <span class="fw-semibold text-dark">{{ t.assignee.get_full_name|default:t.assignee.username }}</span>
+            </div>
+          </td>
+          <td>
+            {% if t.due_date %}
+              <div class="d-flex align-items-center gap-1 text-secondary">
+                <i class="bi bi-calendar-date"></i>
+                <span>{{ t.due_date|date:"d/m/Y" }}</span>
+              </div>
+            {% else %}
+              <span class="text-muted small">Không giới hạn</span>
+            {% endif %}
+          </td>
+          <td>
+            <form method="post" action="{% url 'task_status' t.pk %}" class="d-inline">
+              {% csrf_token %}
+              <select name="status" class="form-select form-select-sm select-status {% if t.status == 'done' %}bg-success-subtle text-success border-success-subtle{% elif t.status == 'doing' %}bg-primary-subtle text-primary border-primary-subtle{% else %}bg-danger-subtle text-danger border-danger-subtle{% endif %}" onchange="this.form.submit()">
+                {% for v, l in statuses %}
+                <option value="{{ v }}" {% if t.status == v %}selected{% endif %}>{{ l }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center py-5 text-muted">
+            <i class="bi bi-clipboard-x fs-1 d-block mb-2 text-secondary opacity-50"></i>
+            Chưa có nhiệm vụ nào được ghi nhận.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 {% endblock %}

@@ -1,11 +1,42 @@
 {% extends "clubs/base.html" %}
+
 {% block content %}
-<div class="card mx-auto" style="max-width:640px"><div class="card-body">
-  <h4>{{ title }}</h4>
-  <form method="post">{% csrf_token %}
-    {% for f in form %}<div class="mb-3"><label class="form-label">{{ f.label }}</label>{{ f }}
-      {% for e in f.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>{% endfor %}
-    <button class="btn btn-primary">Lưu</button>
-  </form>
-</div></div>
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="bg-white border rounded-3 p-4 p-md-5 shadow-sm" style="border-radius: var(--vaa-radius) !important;">
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-primary mb-2" style="width: 50px; height: 50px; font-size: 1.5rem;">
+          <i class="bi bi-pencil-square"></i>
+        </div>
+        <h2 class="h4 fw-bold text-dark">{{ title }}</h2>
+        <p class="text-muted small">Vui lòng điền thông tin chi tiết vào biểu mẫu bên dưới</p>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        {% for f in form %}
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark small">{{ f.label }}</label>
+          {{ f }}
+          {% if f.help_text %}
+          <div class="form-text text-muted small">{{ f.help_text }}</div>
+          {% endif %}
+          {% for e in f.errors %}
+          <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle"></i> {{ e }}</div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+
+        <div class="d-flex gap-2 mt-4">
+          <button type="submit" class="btn btn-primary flex-grow-1 py-2 fw-bold" style="background: var(--vaa-navy); border-color: var(--vaa-navy); border-radius: 10px;">
+            <i class="bi bi-check-lg"></i> Xác nhận lưu
+          </button>
+          <a href="javascript:history.back()" class="btn btn-outline-secondary px-3 py-2" style="border-radius: 10px;">
+            Hủy
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

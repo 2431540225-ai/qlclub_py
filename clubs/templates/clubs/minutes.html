@@ -1,10 +1,94 @@
 {% extends "clubs/base.html" %}
+
+{% block extra_css %}
+<style>
+  .vaa-ai-box {
+    background: #FFFFFF;
+    border: 1px solid var(--vaa-border);
+    border-radius: var(--vaa-radius);
+    padding: 2rem;
+    box-shadow: var(--vaa-shadow-sm);
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .vaa-ai-badge {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    color: #92400E;
+    font-weight: 700;
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .vaa-textarea-styled {
+    border-radius: 10px;
+    border: 1.5px solid var(--vaa-border);
+    padding: 1rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    transition: all 0.2s ease;
+  }
+
+  .vaa-textarea-styled:focus {
+    border-color: var(--vaa-blue);
+    box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.12);
+  }
+
+  .vaa-result-box {
+    background: #FFFFFF;
+    border: 1.5px solid #F59E0B;
+    border-radius: var(--vaa-radius);
+    padding: 1.75rem;
+    box-shadow: var(--vaa-shadow-md);
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<h3>✨ AI tóm tắt biên bản & đề xuất task</h3>
-<form method="post">{% csrf_token %}
-  <div class="mb-3">{{ form.text.label_tag }}{{ form.text }}</div>
-  <button class="btn btn-primary">Tóm tắt</button>
-</form>
-{% if result %}<div class="card mt-4"><div class="card-header">Kết quả</div>
-  <div class="card-body" style="white-space:pre-wrap">{{ result }}</div></div>{% endif %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="vaa-ai-box">
+      <div class="vaa-ai-badge">
+        <i class="bi bi-stars"></i> Trợ lý AI Hàng Không (AI Assistant)
+      </div>
+      <h2 class="h3 fw-bold text-dark mb-2">Tóm Tắt Biên Bản Cuộc Họp & Đề Xuất Phân Công</h2>
+      <p class="text-muted mb-4">
+        Nhập nội dung ghi chú nhanh hoặc biên bản cuộc họp CLB. AI sẽ tự động rút ra các điểm chính, quyết định quan trọng và đề xuất người phụ trách từng đầu việc.
+      </p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-bold text-dark">{{ form.text.label }}</label>
+          {{ form.text }}
+          {% if form.text.errors %}
+            <div class="text-danger small mt-1">{{ form.text.errors }}</div>
+          {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary px-4 py-2 fw-bold" style="background: linear-gradient(135deg, var(--vaa-navy) 0%, #0056b3 100%); border: none; border-radius: 10px;">
+          <i class="bi bi-magic"></i> Bắt đầu phân tích & tóm tắt
+        </button>
+      </form>
+    </div>
+
+    {% if result %}
+    <div class="vaa-result-box mb-5">
+      <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+        <h4 class="h5 fw-bold text-dark m-0">
+          <i class="bi bi-clipboard-data-fill text-warning"></i> Kết Quả Tổng Hợp Từ AI
+        </h4>
+        <span class="badge bg-success-subtle text-success border px-2 py-1">Đã phân tích xong</span>
+      </div>
+      <div class="text-dark" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.7;">
+{{ result }}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

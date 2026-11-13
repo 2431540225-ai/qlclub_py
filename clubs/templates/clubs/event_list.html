@@ -1,10 +1,170 @@
 {% extends "clubs/base.html" %}
+
+{% block extra_css %}
+<style>
+  .vaa-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .vaa-page-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--vaa-navy);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .vaa-page-title i {
+    color: var(--vaa-gold);
+  }
+
+  .vaa-event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .vaa-event-card {
+    background: #FFFFFF;
+    border: 1px solid var(--vaa-border);
+    border-radius: var(--vaa-radius);
+    padding: 1.4rem;
+    box-shadow: var(--vaa-shadow-sm);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .vaa-event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--vaa-shadow-md);
+    border-color: #CBD5E1;
+  }
+
+  .vaa-event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--vaa-blue) 0%, var(--vaa-gold-glow) 100%);
+  }
+
+  .vaa-event-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--vaa-navy);
+    margin-bottom: 0.75rem;
+    line-height: 1.35;
+  }
+
+  .vaa-event-card-title a {
+    color: var(--vaa-navy);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .vaa-event-card-title a:hover {
+    color: var(--vaa-blue);
+  }
+
+  .vaa-event-info {
+    font-size: 0.88rem;
+    color: var(--vaa-text-sub);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .vaa-event-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .vaa-event-info-item i {
+    color: var(--vaa-gold);
+    font-size: 0.95rem;
+  }
+
+  .vaa-event-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.85rem;
+    border-top: 1px solid #F1F5F9;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between mb-3"><h3>Sự kiện</h3>
-  {% if user.profile.is_officer %}<a class="btn btn-primary" href="{% url 'event_create' %}">+ Tạo sự kiện</a>{% endif %}</div>
-<div class="list-group">
-  {% for e in events %}<a class="list-group-item list-group-action" href="{% url 'event_detail' e.pk %}">
-    <b>{{ e.title }}</b> · {{ e.start_time|date:"H:i d/m/Y" }} · {{ e.location }}</a>
-  {% empty %}<div class="text-muted">Chưa có sự kiện.</div>{% endfor %}
+<div class="vaa-page-header">
+  <h1 class="vaa-page-title">
+    <i class="bi bi-calendar2-range-fill"></i>
+    Sự kiện Câu lạc bộ
+  </h1>
+  {% if user.profile.is_officer %}
+  <a href="{% url 'event_create' %}" class="btn btn-primary" style="background: var(--vaa-navy); border-color: var(--vaa-navy); border-radius: 10px; font-weight: 600; padding: 0.55rem 1.2rem;">
+    <i class="bi bi-plus-lg"></i> Tạo sự kiện mới
+  </a>
+  {% endif %}
 </div>
+
+{% if events %}
+<div class="vaa-event-grid">
+  {% for e in events %}
+  <div class="vaa-event-card">
+    <div>
+      <h3 class="vaa-event-card-title">
+        <a href="{% url 'event_detail' e.pk %}">{{ e.title }}</a>
+      </h3>
+      <div class="vaa-event-info">
+        <div class="vaa-event-info-item">
+          <i class="bi bi-clock-fill"></i>
+          <span>{{ e.start_time|date:"H:i - d/m/Y" }}</span>
+        </div>
+        {% if e.location %}
+        <div class="vaa-event-info-item">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span>{{ e.location }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="vaa-event-card-footer">
+      <span class="badge" style="background: #EBF4FC; color: var(--vaa-blue); font-weight: 600; font-size: 0.78rem;">
+        <i class="bi bi-airplane"></i> VAA Event
+      </span>
+      <a href="{% url 'event_detail' e.pk %}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-weight: 600;">
+        Xem chi tiết <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="bg-white rounded-3 p-5 text-center shadow-sm border">
+  <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+  <h4 class="mt-3 text-dark fw-bold">Chưa có sự kiện nào</h4>
+  <p class="text-muted">Hiện tại câu lạc bộ chưa có kế hoạch sự kiện mới.</p>
+  {% if user.profile.is_officer %}
+  <a href="{% url 'event_create' %}" class="btn btn-primary mt-2" style="background: var(--vaa-navy); border: none; border-radius: 8px;">
+    Tạo sự kiện đầu tiên
+  </a>
+  {% endif %}
+</div>
+{% endif %}
 {% endblock %}
