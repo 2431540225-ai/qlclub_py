@@ -111,6 +111,30 @@ def event_announce(request, pk):
 
 
 @role_required(*OFFICER)
+@require_POST
+def event_apply_announcement(request, pk):
+    ev = get_object_or_404(Event, pk=pk)
+    if ev.announcement:
+        ev.previous_description = ev.description
+        ev.description = ev.announcement
+        ev.save()
+        messages.success(request, "Đã áp dụng thông báo AI vào nội dung chi tiết.")
+    return redirect("event_detail", pk=ev.pk)
+
+
+@role_required(*OFFICER)
+@require_POST
+def event_undo_description(request, pk):
+    ev = get_object_or_404(Event, pk=pk)
+    if ev.previous_description:
+        ev.description = ev.previous_description
+        ev.previous_description = ""
+        ev.save()
+        messages.success(request, "Đã hoàn tác lại nội dung chi tiết ban đầu.")
+    return redirect("event_detail", pk=ev.pk)
+
+
+@role_required(*OFFICER)
 def members(request):
     return render(request, "clubs/members.html", {"users": User.objects.select_related("profile").order_by("username")})
 

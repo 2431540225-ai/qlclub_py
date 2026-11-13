@@ -162,8 +162,18 @@
         </div>
       </div>
 
-      {% if event.description %}
-      <h6 class="fw-bold text-dark mt-3 mb-2"><i class="bi bi-card-text text-primary"></i> Nội dung chi tiết:</h6>
+      {% if event.description or event.previous_description %}
+      <div class="d-flex justify-content-between align-items-center mt-3 mb-2 flex-wrap gap-2">
+        <h6 class="fw-bold text-dark m-0"><i class="bi bi-card-text text-primary"></i> Nội dung chi tiết:</h6>
+        {% if event.previous_description and user.profile.is_officer %}
+        <form method="post" action="{% url 'event_undo_description' event.pk %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-secondary btn-sm py-1 px-2 rounded-2 fw-semibold" onclick="return confirm('Bạn có chắc muốn khôi phục lại nội dung chi tiết ban đầu?');">
+            <i class="bi bi-arrow-counterclockwise"></i> Hoàn tác nội dung cũ
+          </button>
+        </form>
+        {% endif %}
+      </div>
       <div class="vaa-desc-box">
         {{ event.description|linebreaksbr }}
       </div>
@@ -186,11 +196,21 @@
     <!-- Thông báo tạo bởi AI (nếu có) -->
     {% if event.announcement %}
     <div class="vaa-ai-card">
-      <div class="vaa-ai-header">
+      <div class="vaa-ai-header flex-wrap gap-2">
         <h5 class="vaa-ai-title">
           <i class="bi bi-robot"></i> Bản Thông Báo Phát Động Sự Kiện (AI Generator)
         </h5>
-        <span class="badge bg-warning text-dark">Sẵn sàng gửi</span>
+        <div class="d-flex align-items-center gap-2">
+          {% if user.profile.is_officer %}
+          <form method="post" action="{% url 'event_apply_announcement' event.pk %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-success fw-bold px-2 py-1 shadow-sm" onclick="return confirm('Áp dụng thông báo này vào nội dung chi tiết sự kiện? (Bạn có thể hoàn tác lại sau)');">
+              <i class="bi bi-check2-circle"></i> Áp dụng vào nội dung chi tiết
+            </button>
+          </form>
+          {% endif %}
+          <span class="badge bg-warning text-dark">Sẵn sàng gửi</span>
+        </div>
       </div>
       <div class="bg-white p-3 rounded-3 border border-warning-subtle text-dark"
         style="white-space: pre-wrap; font-size: 0.92rem; line-height: 1.6;">{{ event.announcement }}</div>

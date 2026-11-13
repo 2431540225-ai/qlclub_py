@@ -29,6 +29,7 @@ def create_profile(sender, instance, created, **kwargs):
 class Event(models.Model):
     title = models.CharField("Tên sự kiện", max_length=200)
     description = models.TextField("Mô tả", blank=True)
+    previous_description = models.TextField("Mô tả trước đó", blank=True, default="")
     location = models.CharField("Địa điểm", max_length=200)
     start_time = models.DateTimeField("Thời gian")
     announcement = models.TextField("Thông báo (AI)", blank=True)
