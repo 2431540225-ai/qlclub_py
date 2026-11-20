@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Event, Task
+from .models import Event, Task, Transaction
 
 
 class StyledMixin:
@@ -33,5 +33,15 @@ class TaskForm(StyledMixin, forms.ModelForm):
         widgets = {"due_date": forms.DateInput(attrs={"type": "date"})}
 
 
+class TransactionForm(StyledMixin, forms.ModelForm):
+    class Meta:
+        model = Transaction
+        fields = ("kind", "amount", "reason", "date", "event")
+        widgets = {"date": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")}
+
+
 class MinutesForm(StyledMixin, forms.Form):
-    text = forms.CharField(label="Nội dung biên bản / ghi chú cuộc họp", widget=forms.Textarea(attrs={"rows": 10}))
+    text = forms.CharField(
+        label="Nội dung biên bản / ghi chú cuộc họp",
+        widget=forms.Textarea(attrs={"rows": 10, "class": "form-control vaa-textarea-styled"}),
+    )

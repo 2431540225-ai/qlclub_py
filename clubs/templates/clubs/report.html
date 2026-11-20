@@ -1,0 +1,70 @@
+{% extends "clubs/base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+  <h2 class="h3 fw-bold m-0"><i class="bi bi-bar-chart-line text-warning"></i> Báo cáo hoạt động ({{ days }} ngày gần nhất)</h2>
+  <div class="btn-group">
+    {% for d in choices %}
+    <a href="?days={{ d }}" class="btn btn-sm {% if d == days %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ d }} ngày</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body">
+    <div class="text-muted small">Sự kiện đã diễn ra</div>
+    <div class="h3 fw-bold m-0">{{ r.n_events }}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body">
+    <div class="text-muted small">Lượt điểm danh</div>
+    <div class="h3 fw-bold m-0">{{ r.n_attend }}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body">
+    <div class="text-muted small">Tỷ lệ tham dự</div>
+    <div class="h3 fw-bold m-0">{% if r.attend_pct is not None %}{{ r.attend_pct }}%{% else %}-{% endif %}</div>
+  </div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body">
+    <div class="text-muted small">Thành viên ít tương tác</div>
+    <div class="h3 fw-bold m-0 {% if r.n_low %}text-danger{% endif %}">{{ r.n_low }}</div>
+    <a href="{% url 'engagement' %}" class="small">Xem chi tiết</a>
+  </div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <h5 class="fw-bold mb-3">Task</h5>
+      <div class="d-flex justify-content-between"><span>Cần làm</span><strong>{{ r.tasks_todo }}</strong></div>
+      <div class="d-flex justify-content-between"><span>Đang làm</span><strong>{{ r.tasks_doing }}</strong></div>
+      <div class="d-flex justify-content-between"><span>Hoàn thành</span><strong>{{ r.tasks_done }}</strong></div>
+      <div class="d-flex justify-content-between text-danger"><span>Quá hạn</span><strong>{{ r.tasks_overdue }}</strong></div>
+      <hr>
+      <div class="d-flex justify-content-between"><span>Tỷ lệ hoàn thành</span>
+        <strong>{% if r.done_pct is not None %}{{ r.done_pct }}%{% else %}-{% endif %}</strong></div>
+    </div></div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <h5 class="fw-bold mb-3">Quỹ trong kỳ</h5>
+      <div class="d-flex justify-content-between text-success"><span>Thu</span><strong>{{ r.income|floatformat:"0g" }} đ</strong></div>
+      <div class="d-flex justify-content-between text-danger"><span>Chi</span><strong>{{ r.expense|floatformat:"0g" }} đ</strong></div>
+      <hr>
+      <div class="d-flex justify-content-between"><span>Số dư hiện tại</span><strong>{{ r.balance|floatformat:"0g" }} đ</strong></div>
+    </div></div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <h5 class="fw-bold mb-3">Sự kiện đông nhất</h5>
+      {% for e in r.top_events %}
+      <div class="d-flex justify-content-between border-bottom py-1">
+        <a href="{% url 'event_detail' e.pk %}" class="text-decoration-none">{{ e.title }}</a>
+        <strong>{{ e.n }}</strong>
+      </div>
+      {% empty %}
+      <div class="text-muted">Chưa có sự kiện trong kỳ.</div>
+      {% endfor %}
+    </div></div>
+  </div>
+</div>
+{% endblock %}

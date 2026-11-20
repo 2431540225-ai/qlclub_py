@@ -1,4 +1,5 @@
 import io
+from datetime import date
 from functools import wraps
 
 import qrcode
@@ -7,15 +8,18 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.views.decorators.http import require_POST
 
-from .ai import draft_announcement, summarize_minutes
-from .forms import EventForm, MinutesForm, RegisterForm, TaskForm
-from .models import Attendance, Event, Task
+from .ai import draft_announcement, suggest_tasks, summarize_minutes
+from .forms import EventForm, MinutesForm, RegisterForm, TaskForm, TransactionForm
+from .models import Attendance, Event, Task, Transaction
+from .services import activity_report, engagement_report
 
 
 def role_required(*roles):
@@ -144,7 +148,9 @@ def members(request):
 def change_role(request, pk):
     u = get_object_or_404(User, pk=pk)
     role = request.POST.get("role")
-    if role in ("admin", "officer", "member"):
+    if u == request.user and role != "admin":
+        messages.error(request, "Bạn không thể tự hạ quyền của chính mình.")
+    elif role in ("admin", "officer", "member"):
         u.profile.role = role
         u.profile.save()
         messages.success(request, f"Đã đổi vai trò của {u.username}.")
@@ -184,8 +190,111 @@ def task_status(request, pk):
 @role_required(*OFFICER)
 def minutes(request):
     form = MinutesForm(request.POST or None)
-    result = None
+    result, suggestions, ai_failed = None, [], False
     if form.is_valid():
-        roles = ", ".join(f"{u.username} ({u.profile.get_role_display()})" for u in User.objects.select_related("profile"))
-        result = summarize_minutes(form.cleaned_data["text"], roles)
-    return render(request, "clubs/minutes.html", {"form": form, "result": result})
+        users = list(User.objects.filter(is_active=True).select_related("profile"))
+        names = {u.id: (u.get_full_name() or u.username) for u in users}
+        roles = ", ".join(f"{names[u.id]} ({u.profile.get_role_display()})" for u in users)
+        members_data = [{"id": u.id, "name": names[u.id], "role": u.profile.get_role_display()} for u in users]
+        text = form.cleaned_data["text"]
+
+        result = summarize_minutes(text, roles)
+        raw, ok = suggest_tasks(text, members_data)
+        ai_failed = not ok
+        for s in raw:
+            if not isinstance(s, dict):
+                continue
+            aid = s.get("assignee_id")
+            if not isinstance(aid, int) or aid not in names or not s.get("title"):
+                continue
+            due = s.get("due_date")
+            try:
+                due = date.fromisoformat(due) if due else None
+            except (TypeError, ValueError):
+                due = None
+            suggestions.append({
+                "title": str(s["title"])[:200],
+                "assignee_id": aid,
+                "assignee_name": names[aid],
+                "due": due.isoformat() if due else "",
+                "reason": s.get("reason", ""),
+            })
+    return render(request, "clubs/minutes.html", {
+        "form": form, "result": result, "suggestions": suggestions, "ai_failed": ai_failed,
+    })
+
+
+@role_required(*OFFICER)
+@require_POST
+def minutes_apply_tasks(request):
+    created = 0
+    for i in request.POST.getlist("selected"):
+        title = request.POST.get(f"title_{i}", "").strip()[:200]
+        try:
+            assignee = User.objects.get(pk=int(request.POST.get(f"assignee_{i}", "")))
+        except (ValueError, User.DoesNotExist):
+            continue
+        due = parse_date(request.POST.get(f"due_{i}", "") or "")
+        if title:
+            Task.objects.create(title=title, assignee=assignee, due_date=due)
+            created += 1
+    messages.success(request, f"Đã tạo {created} task từ gợi ý của AI.")
+    return redirect("tasks")
+
+
+@role_required(*OFFICER)
+def engagement(request):
+    return render(request, "clubs/engagement.html", {"rows": engagement_report(days=60)})
+
+
+def _fund_totals():
+    t = Transaction.objects.aggregate(
+        income=Sum("amount", filter=Q(kind="income")),
+        expense=Sum("amount", filter=Q(kind="expense")),
+    )
+    return t["income"] or 0, t["expense"] or 0
+
+
+@role_required(*OFFICER)
+def fund(request):
+    income, expense = _fund_totals()
+    txs = Transaction.objects.select_related("event", "created_by")[:100]
+    return render(request, "clubs/fund.html", {
+        "transactions": txs, "income": income, "expense": expense, "balance": income - expense,
+    })
+
+
+@role_required(*OFFICER)
+def transaction_create(request):
+    form = TransactionForm(request.POST or None)
+    if form.is_valid():
+        tx = form.save(commit=False)
+        income, expense = _fund_totals()
+        if tx.kind == "expense" and tx.amount > income - expense:
+            form.add_error("amount", f"Số dư quỹ không đủ (hiện còn {income - expense:,} VNĐ).")
+        else:
+            tx.created_by = request.user
+            tx.save()
+            messages.success(request, "Đã ghi nhận giao dịch.")
+            return redirect("fund")
+    return render(request, "clubs/form.html", {"form": form, "title": "Thêm giao dịch quỹ"})
+
+
+@role_required("admin")
+@require_POST
+def transaction_delete(request, pk):
+    get_object_or_404(Transaction, pk=pk).delete()
+    messages.success(request, "Đã xóa giao dịch.")
+    return redirect("fund")
+
+
+@role_required(*OFFICER)
+def report(request):
+    try:
+        days = int(request.GET.get("days", 90))
+    except ValueError:
+        days = 90
+    choices = (30, 90, 180, 365)
+    if days not in choices:
+        days = 90
+    return render(request, "clubs/report.html", {"r": activity_report(days), "days": days, "choices": choices})

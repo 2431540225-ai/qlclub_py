@@ -1,0 +1,28 @@
+{% extends "clubs/base.html" %}
+{% block content %}
+<h2>Báo cáo mức độ tương tác (60 ngày gần nhất)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Thành viên</th>
+      <th>Tham dự</th>
+      <th>Tỷ lệ</th>
+      <th>Task quá hạn</th>
+      <th>Cảnh báo</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr {% if r.low %}style="background:#fff3cd"{% endif %}>
+      <td>{{ r.user.get_full_name|default:r.user.username }}</td>
+      <td>{{ r.attended }}/{{ r.total }}</td>
+      <td>{% if r.rate is not None %}{{ r.rate|floatformat:"-2" }}{% else %}-{% endif %}</td>
+      <td>{{ r.overdue }}</td>
+      <td>{% if r.low %}Ít tương tác{% endif %}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Chưa có dữ liệu.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

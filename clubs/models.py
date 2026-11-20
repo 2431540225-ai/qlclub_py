@@ -1,4 +1,6 @@
 import uuid
+from django.core.validators import MinValueValidator
+from django.utils import timezone
 from django.conf import settings
 from django.db import models
 from django.db.models.signals import post_save
@@ -63,3 +65,18 @@ class Task(models.Model):
 
     class Meta:
         ordering = ["status", "due_date"]
+
+class Transaction(models.Model):
+    KINDS = [("income", "Thu"), ("expense", "Chi")]
+    kind = models.CharField("Loại", max_length=7, choices=KINDS)
+    amount = models.PositiveIntegerField("Số tiền (VNĐ)", validators=[MinValueValidator(1)])
+    reason = models.CharField("Lý do", max_length=200)
+    date = models.DateField("Ngày", default=timezone.localdate)
+    event = models.ForeignKey(Event, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Sự kiện liên quan")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, editable=False)
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+    def __str__(self):
+        return f"{self.get_kind_display()} {self.amount} - {self.reason}"

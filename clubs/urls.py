@@ -18,4 +18,10 @@ urlpatterns = [
     path("tasks/new/", views.task_create, name="task_create"),
     path("tasks/<int:pk>/status/", views.task_status, name="task_status"),
     path("ai/minutes/", views.minutes, name="minutes"),
+    path("ai/minutes/apply/", views.minutes_apply_tasks, name="minutes_apply_tasks"),
+    path("reports/engagement/", views.engagement, name="engagement"),
+    path("reports/activity/", views.report, name="report"),
+    path("fund/", views.fund, name="fund"),
+    path("fund/new/", views.transaction_create, name="transaction_create"),
+    path("fund/<int:pk>/delete/", views.transaction_delete, name="transaction_delete"),
 ]
